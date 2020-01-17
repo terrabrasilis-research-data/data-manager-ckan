@@ -1,5 +1,5 @@
 # TerraBrasilis Research Data - Data Manager Datasets
-The Data Manager component is responsible for the management of Research Data Repositories and for providing mechanisms for searching and accessing all data available in the repositories. It uses a CKAN with ckanext-spatial, the Geospatial extension for CKAN.
+The Data Manager is responsible for the support portion of the platform. In the context of infrastructure, this includes the creation, management and delivery of Research Data Repositories. It uses a CKAN with ckanext-spatial, the Geospatial extension for CKAN.
 
 CKAN Installation
 ------------

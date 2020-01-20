@@ -10,14 +10,14 @@ import sqlalchemy.engine.url as sa_url
 import datetime
 import hashlib
 import json
-from cStringIO import StringIO
+from collections import OrderedDict
 
+import six
 from six.moves.urllib.parse import (
     urlencode, unquote, urlunparse, parse_qsl, urlparse
 )
-from six import string_types, text_type
+from six import string_types, text_type, StringIO
 
-import ckan.lib.cli as cli
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 from ckan.lib.lazyjson import LazyJSONObject
@@ -32,7 +32,7 @@ from sqlalchemy.exc import (ProgrammingError, IntegrityError,
 
 import ckan.model as model
 import ckan.plugins as plugins
-from ckan.common import config, OrderedDict
+from ckan.common import config
 
 from ckanext.datastore.backend import (
     DatastoreBackend,
@@ -285,7 +285,7 @@ def _get_fields(connection, resource_id):
     for field in all_fields.cursor.description:
         if not field[0].startswith('_'):
             fields.append({
-                'id': field[0].decode('utf-8'),
+                'id': six.ensure_text(field[0]),
                 'type': _get_type(connection, field[1])
             })
     return fields
@@ -331,7 +331,7 @@ def _pg_version_is_at_least(connection, version):
 
 
 def _get_read_only_user(data_dict):
-    parsed = cli.parse_db_config('ckan.datastore.read_url')
+    parsed = model.parse_db_config('ckan.datastore.read_url')
     return parsed['db_user']
 
 
@@ -361,7 +361,7 @@ def _where_clauses(data_dict, fields_types):
     filters = data_dict.get('filters', {})
     clauses = []
 
-    for field, value in filters.iteritems():
+    for field, value in six.iteritems(filters):
         if field not in fields_types:
             continue
         field_array_type = _is_array_type(fields_types[field])
@@ -386,7 +386,7 @@ def _where_clauses(data_dict, fields_types):
             clauses.append((clause_str,))
         elif isinstance(q, dict):
             lang = _fts_lang(data_dict.get('lang'))
-            for field, value in q.iteritems():
+            for field, value in six.iteritems(q):
                 if field not in fields_types:
                     continue
                 query_field = _ts_query_alias(field)
@@ -427,7 +427,7 @@ def _textsearch_query(lang, q, plain):
         statements.append(query)
         rank_columns[u'rank'] = rank
     elif isinstance(q, dict):
-        for field, value in q.iteritems():
+        for field, value in six.iteritems(q):
             query, rank = _build_query_and_rank_statements(
                 lang, value, plain, field)
             statements.append(query)
@@ -741,7 +741,7 @@ def convert(data, type_name):
         sub_type = type_name[1:]
         return [convert(item, sub_type) for item in data]
     if type_name == 'tsvector':
-        return text_type(data, 'utf-8')
+        return six.ensure_text(data)
     if isinstance(data, datetime.datetime):
         return data.isoformat()
     if isinstance(data, (int, float)):
@@ -820,7 +820,7 @@ def create_indexes(context, data_dict):
             name=_generate_index_name(data_dict['resource_id'], fields_string),
             fields=fields_string))
 
-    sql_index_strings = map(lambda x: x.replace('%', '%%'), sql_index_strings)
+    sql_index_strings = [x.replace('%', '%%') for x in sql_index_strings]
     current_indexes = _get_index_names(context['connection'],
                                        data_dict['resource_id'])
     for sql_index_string in sql_index_strings:
@@ -882,7 +882,7 @@ def create_table(context, data_dict):
             field['type'] = _guess_type(records[0][field['id']])
 
     # Check for duplicate fields
-    unique_fields = set([f['id'] for f in supplied_fields])
+    unique_fields = {f['id'] for f in supplied_fields}
     if not len(unique_fields) == len(supplied_fields):
         raise ValidationError({
             'field': ['Duplicate column names are not supported']
@@ -1201,7 +1201,7 @@ def validate(context, data_dict):
     data_dict_copy.pop('records_format', None)
     data_dict_copy.pop('calculate_record_count', None)
 
-    for key, values in data_dict_copy.iteritems():
+    for key, values in six.iteritems(data_dict_copy):
         if not values:
             continue
         if isinstance(values, string_types):
@@ -1209,7 +1209,7 @@ def validate(context, data_dict):
         elif isinstance(values, (list, tuple)):
             value = values[0]
         elif isinstance(values, dict):
-            value = values.keys()[0]
+            value = list(values.keys())[0]
         else:
             value = values
 
@@ -1388,7 +1388,7 @@ def format_results(context, results, data_dict, rows_max):
     result_fields = []
     for field in results.cursor.description:
         result_fields.append({
-            'id': field[0].decode('utf-8'),
+            'id': six.ensure_text(field[0]),
             'type': _get_type(context['connection'], field[1])
         })
 
@@ -2085,5 +2085,5 @@ def _programming_error_summary(pe):
     ValidationError to send back to API users
     '''
     # first line only, after the '(ProgrammingError)' text
-    message = pe.args[0].split('\n')[0].decode('utf8')
+    message = six.ensure_text(pe.args[0].split('\n')[0])
     return message.split(u') ', 1)[-1]

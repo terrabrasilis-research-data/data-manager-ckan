@@ -19,7 +19,7 @@ from ckanext.datastore.backend import (
     DatastoreBackend
 )
 from ckanext.datastore.backend.postgres import DatastorePostgresqlBackend
-import ckanext.datastore.view as view
+import ckanext.datastore.blueprint as view
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -155,10 +155,10 @@ class DatastorePlugin(p.SingletonPlugin):
     # IDatastore
 
     def datastore_validate(self, context, data_dict, fields_types):
-        column_names = fields_types.keys()
+        column_names = list(fields_types.keys())
 
         filters = data_dict.get('filters', {})
-        for key in filters.keys():
+        for key in list(filters.keys()):
             if key in fields_types:
                 del filters[key]
 
@@ -168,7 +168,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 del data_dict['q']
                 column_names.append(u'rank')
             elif isinstance(q, dict):
-                for key in q.keys():
+                for key in list(q.keys()):
                     if key in fields_types and isinstance(q[key],
                                                           string_types):
                         column_names.append(u'rank ' + key)

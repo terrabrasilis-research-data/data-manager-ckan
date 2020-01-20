@@ -5,10 +5,10 @@ import uuid
 import logging
 
 from sqlalchemy.orm import class_mapper
+import six
 from six import string_types
 
 import ckan.lib.dictization as d
-import ckan.lib.helpers as h
 import ckan.authz as authz
 
 log = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ def resource_dict_save(res_dict, context):
     # Resource extras not submitted will be removed from the existing extras
     # dict
     new_extras = {}
-    for key, value in res_dict.iteritems():
+    for key, value in six.iteritems(res_dict):
         if isinstance(value, list):
             continue
         if key in ('extras', 'revision_timestamp', 'tracking_summary'):
@@ -419,7 +419,7 @@ def group_dict_save(group_dict, context, prevent_packages_update=False):
     package_ids.extend( pkgs_edited['added'] )
     if package_ids:
         session.commit()
-        map( rebuild, package_ids )
+        [rebuild(package_id) for package_id in package_ids]
 
     return group
 
@@ -450,7 +450,7 @@ def package_api_to_dict(api1_dict, context):
 
     dictized = {}
 
-    for key, value in api1_dict.iteritems():
+    for key, value in six.iteritems(api1_dict):
         new_value = value
         if key == 'tags':
             if isinstance(value, string_types):
@@ -465,7 +465,7 @@ def package_api_to_dict(api1_dict, context):
 
             new_value = []
 
-            for extras_key, extras_value in updated_extras.iteritems():
+            for extras_key, extras_value in six.iteritems(updated_extras):
                 new_value.append({"key": extras_key,
                                   "value": extras_value})
 
@@ -489,7 +489,7 @@ def group_api_to_dict(api1_dict, context):
 
     dictized = {}
 
-    for key, value in api1_dict.iteritems():
+    for key, value in six.iteritems(api1_dict):
         new_value = value
         if key == 'packages':
             new_value = [{"id": item} for item in value]
@@ -516,13 +516,12 @@ def activity_dict_save(activity_dict, context):
     session = context['session']
     user_id = activity_dict['user_id']
     object_id = activity_dict['object_id']
-    revision_id = activity_dict['revision_id']
     activity_type = activity_dict['activity_type']
-    if activity_dict.has_key('data'):
+    if 'data' in activity_dict:
         data = activity_dict['data']
     else:
         data = None
-    activity_obj = model.Activity(user_id, object_id, revision_id,
+    activity_obj = model.Activity(user_id, object_id,
             activity_type, data)
     session.add(activity_obj)
 
@@ -555,7 +554,7 @@ def vocabulary_dict_save(vocabulary_dict, context):
     vocabulary_obj = model.Vocabulary(vocabulary_name)
     session.add(vocabulary_obj)
 
-    if vocabulary_dict.has_key('tags'):
+    if 'tags' in vocabulary_dict:
         vocabulary_tag_list_save(vocabulary_dict['tags'], vocabulary_obj,
             context)
 
@@ -568,10 +567,10 @@ def vocabulary_dict_update(vocabulary_dict, context):
 
     vocabulary_obj = model.vocabulary.Vocabulary.get(vocabulary_dict['id'])
 
-    if vocabulary_dict.has_key('name'):
+    if 'name' in vocabulary_dict:
         vocabulary_obj.name = vocabulary_dict['name']
 
-    if vocabulary_dict.has_key('tags'):
+    if 'tags' in vocabulary_dict:
         vocabulary_tag_list_save(vocabulary_dict['tags'], vocabulary_obj,
             context)
 
@@ -601,7 +600,7 @@ def resource_view_dict_save(data_dict, context):
     if resource_view:
         data_dict['id'] = resource_view.id
     config = {}
-    for key, value in data_dict.iteritems():
+    for key, value in six.iteritems(data_dict):
         if key not in model.ResourceView.get_columns():
             config[key]  = value
     data_dict['config'] = config

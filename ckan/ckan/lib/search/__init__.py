@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import print_function
 import logging
 import sys
 import cgitb
@@ -8,17 +9,20 @@ import xml.dom.minidom
 
 import requests
 
-from ckan.common import asbool
-
 import ckan.model as model
 import ckan.plugins as p
 import ckan.logic as logic
 
-from common import (SearchIndexError, SearchError, SearchQueryError,
-                    make_connection, is_available, SolrSettings)
-from index import PackageSearchIndex, NoopSearchIndex
-from query import (TagSearchQuery, ResourceSearchQuery, PackageSearchQuery,
-                   QueryOptions, convert_legacy_parameters_to_solr)
+from ckan.lib.search.common import (
+    SearchIndexError, SearchError, SearchQueryError,
+    make_connection, is_available, SolrSettings
+)
+from ckan.lib.search.index import PackageSearchIndex, NoopSearchIndex
+from ckan.lib.search.query import (
+    TagSearchQuery, ResourceSearchQuery, PackageSearchQuery,
+    QueryOptions, convert_legacy_parameters_to_solr
+)
+
 
 log = logging.getLogger(__name__)
 
@@ -154,7 +158,7 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False,
         log.info('Indexing just package %r...', pkg_dict['name'])
         package_index.remove_dict(pkg_dict)
         package_index.insert_dict(pkg_dict)
-    elif package_ids:
+    elif package_ids is not None:
         for package_id in package_ids:
             pkg_dict = logic.get_action('package_show')(context,
                 {'id': package_id})
@@ -220,14 +224,14 @@ def check():
     log.debug("Checking packages search index...")
     pkgs_q = model.Session.query(model.Package).filter_by(
         state=model.State.ACTIVE)
-    pkgs = set([pkg.id for pkg in pkgs_q])
+    pkgs = {pkg.id for pkg in pkgs_q}
     indexed_pkgs = set(package_query.get_all_entity_ids(max_results=len(pkgs)))
     pkgs_not_indexed = pkgs - indexed_pkgs
     print('Packages not indexed = %i out of %i' % (len(pkgs_not_indexed),
                                                    len(pkgs)))
     for pkg_id in pkgs_not_indexed:
         pkg = model.Session.query(model.Package).get(pkg_id)
-        print(pkg.revision.timestamp.strftime('%Y-%m-%d'), pkg.name)
+        print((pkg.revision.timestamp.strftime('%Y-%m-%d'), pkg.name))
 
 
 def show(package_reference):

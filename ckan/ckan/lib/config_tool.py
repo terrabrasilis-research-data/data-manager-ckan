@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import print_function
 import re
 
 INSERT_NEW_SECTIONS_BEFORE_SECTION = 'app:main'
@@ -89,8 +90,8 @@ class Option(object):
 
 
 def calculate_new_sections(existing_options, desired_options):
-    existing_sections = set([option.section for option in existing_options])
-    desired_sections = set([option.section for option in desired_options])
+    existing_sections = {option.section for option in existing_options}
+    desired_sections = {option.section for option in desired_options}
     new_sections = desired_sections - existing_sections
     return new_sections
 

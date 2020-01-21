@@ -17,7 +17,6 @@ pylons_data/*
 #ckan/i18n/*/*/*.mo
 
 # other
-pip-requirements-local.txt
 migrate/*
 build/*
 tmp/*

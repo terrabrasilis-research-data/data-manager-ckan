@@ -34,6 +34,14 @@ ENV CKAN_VENV $CKAN_HOME/venv
 ENV CKAN_CONFIG /etc/ckan
 ENV CKAN_STORAGE_PATH=/var/lib/ckan
 
+# Define environment variables (plugin ckanext-doi)
+ENV DOI_EXT_PLUGIN 0
+ENV DOI_EXT_ACCOUNT_NAME ''
+ENV DOI_EXT_ACCOUNT_PASSWORD ''
+ENV DOI_EXT_PREFIX ''
+ENV DOI_EXT_PUBLISHER ''
+ENV DOI_EXT_TEST_MODE ''
+
 # Build-time variables specified by docker-compose.yml / .env
 ARG CKAN_SITE_URL
 

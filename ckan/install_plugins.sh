@@ -2,9 +2,11 @@
 ####
 # Script to install ckanext-doi
 # https://github.com/NaturalHistoryMuseum/ckanext-doi
+#
+# Set environment variables in ckan/contrib/docker/.env
 #####
 
-if [ $DOI_EXT_PLUGIN -eq 1 ]
+if [ $DOI_EXT_PLUGIN -eq 1 ] && [ ! -d "$CKAN_VENV/src/ckanext-doi" ]
 then
     ## Download and install ckanext-doi
     cd $CKAN_VENV/src && \
@@ -15,7 +17,7 @@ then
         cd $CKAN_VENV/src/ckanext-doi && \
         python setup.py develop
 
-    # Configuring production
+    # Configuring production.ini
     sed -i '/ckan.plugins/s/$/ doi/' $CKAN_CONFIG/production.ini
 
     sed -i '/Front-End Settings/ i\## ckanext-doi Settings' $CKAN_CONFIG/production.ini

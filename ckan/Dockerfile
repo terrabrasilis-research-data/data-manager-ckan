@@ -34,6 +34,14 @@ ENV CKAN_VENV $CKAN_HOME/venv
 ENV CKAN_CONFIG /etc/ckan
 ENV CKAN_STORAGE_PATH=/var/lib/ckan
 
+# Define environment variables (plugin ckanext-doi)
+ENV DOI_EXT_PLUGIN 0
+ENV DOI_EXT_ACCOUNT_NAME ''
+ENV DOI_EXT_ACCOUNT_PASSWORD ''
+ENV DOI_EXT_PREFIX ''
+ENV DOI_EXT_PUBLISHER ''
+ENV DOI_EXT_TEST_MODE ''
+
 # Build-time variables specified by docker-compose.yml / .env
 ARG CKAN_SITE_URL
 
@@ -55,7 +63,8 @@ RUN ckan-pip install -U pip && \
     ln -s $CKAN_VENV/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini && \
     cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh && \
     chmod +x /ckan-entrypoint.sh && \
-    chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
+    chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
+    chmod +x $CKAN_VENV/src/ckan/install_plugins.sh
 
 ENTRYPOINT ["/ckan-entrypoint.sh"]
 

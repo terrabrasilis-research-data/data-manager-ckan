@@ -1,4 +1,4 @@
-# TerraBrasilis Research Data - Data Manager Datasets
+# TerraBrasilis Research Data - Data Manager CKAN API
 The Data Manager is responsible for the support portion of the platform. In the context of infrastructure, this includes the creation, management and delivery of Research Data Repositories. It uses a CKAN with ckanext-spatial, the Geospatial extension for CKAN.
 
 CKAN Installation

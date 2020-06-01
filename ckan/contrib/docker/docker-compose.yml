@@ -11,7 +11,7 @@ volumes:
 
 services:
   ckan:
-    container_name: ckan
+    container_name:  terrabrasilisrd_ckan
     restart: unless-stopped
     build:
       context: ../../
@@ -51,14 +51,14 @@ services:
 
   datapusher:
     restart: unless-stopped
-    container_name: datapusher
+    container_name:  terrabrasilisrd_ckan_datapusher
     image: clementmouchet/datapusher
     ports:
       - "8800:8800"
 
   db:
     restart: unless-stopped
-    container_name: db
+    container_name: terrabrasilisrd_ckan_db
     build:
       context: ../../
       dockerfile: contrib/docker/postgresql/Dockerfile
@@ -75,7 +75,7 @@ services:
 
   solr:
     restart: unless-stopped
-    container_name: solr
+    container_name: terrabrasilisrd_ckan_solr
     build:
       context: ../../
       dockerfile: contrib/docker/solr/Dockerfile
@@ -84,5 +84,5 @@ services:
 
   redis:
     restart: unless-stopped
-    container_name: redis
+    container_name: terrabrasilisrd_ckan_redis
     image: redis:latest

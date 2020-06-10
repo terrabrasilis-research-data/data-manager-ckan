@@ -86,3 +86,4 @@ services:
     restart: unless-stopped
     container_name: terrabrasilisrd_ckan_redis
     image: redis:latest
+

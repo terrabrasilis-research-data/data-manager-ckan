@@ -10,6 +10,7 @@ services:
       context: ../../
       args:
           - CKAN_SITE_URL=${CKAN_SITE_URL}
+          - CKAN_SITE_ROOT_PATH=${CKAN_SITE_ROOT_PATH}
     links:
       - tbrd_solr
       - tbrd_redis
@@ -21,8 +22,12 @@ services:
       - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@db/datastore
       - CKAN_SOLR_URL=http://tbrd_solr:8983/solr/ckan
       - CKAN_REDIS_URL=redis://tbrd_redis:6379/1
-      - CKAN_DATAPUSHER_URL=http://datapusher:8800
+      - CKAN_DATAPUSHER_URL=http://tbrd_datapusher:8800
+
+      # sub-pathing config
       - CKAN_SITE_URL=${CKAN_SITE_URL}
+      - CKAN_SITE_ROOT_PATH=${CKAN_SITE_ROOT_PATH}
+
       - CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB}
       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
       - DOI_EXT_PLUGIN=${DOI_EXT_PLUGIN}
@@ -31,6 +36,7 @@ services:
       - DOI_EXT_PREFIX=${DOI_EXT_PREFIX}
       - DOI_EXT_PUBLISHER=${DOI_EXT_PUBLISHER}
       - DOI_EXT_TEST_MODE=${DOI_EXT_TEST_MODE}
+
       # Database auth
       - CKAN_DATABASE_HOST=${CKAN_DATABASE_HOST}
       - CKAN_DATABASE_USER=${CKAN_DATABASE_USER}

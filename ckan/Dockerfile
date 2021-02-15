@@ -47,6 +47,7 @@ ENV DOI_EXT_TEST_MODE ''
 
 # Build-time variables specified by docker-compose.yml / .env
 ARG CKAN_SITE_URL
+ARG CKAN_SITE_ROOT_PATH
 
 # Create ckan user
 RUN useradd -r -u 900 -m -c "ckan account" -d $CKAN_HOME -s /bin/false ckan
